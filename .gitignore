@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.Python
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+.next/
+out/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data
+backend/data/*.csv
+
+# Logs
+*.log
+
+# Test
+backend/test_setup.py
+backend/test_db.py
