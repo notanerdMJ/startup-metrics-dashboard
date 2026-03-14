@@ -1,30 +1,15 @@
-// frontend/src/app/layout.tsx
-import type { Metadata } from "next";
-import { AuthProvider } from "@/context/AuthContext";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import "./globals.css";
+import Hero from "@/components/landing/Hero";
+import Features from "@/components/landing/Features";
+import HowItWorks from "@/components/landing/HowItWorks";
+import CTA from "@/components/landing/CTA";
 
-export const metadata: Metadata = {
-  title: "StartupMetrics - Unit Economics Dashboard",
-  description:
-    "AI-powered unit economics and runway dashboard for startup founders",
-};
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function LandingPage() {
   return (
-    <html lang="en">
-      <body className="bg-dashboard-bg text-white min-h-screen">
-        <AuthProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-        </AuthProvider>
-      </body>
-    </html>
+    <div className="min-h-screen bg-dashboard-bg">
+      <Hero />
+      <Features />
+      <HowItWorks />
+      <CTA />
+    </div>
   );
 }
