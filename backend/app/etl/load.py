@@ -12,10 +12,7 @@ from app.models.metrics import CalculatedMetrics
 
 
 def load_raw_data(db: Session, df: pd.DataFrame) -> dict:
-    """
-    Load cleaned raw data into the raw_data table.
-    Clears existing data first to avoid duplicates.
-    """
+    """Load cleaned raw data into the raw_data table."""
     print("[LOAD] Loading raw data into database...")
 
     # Clear existing raw data
@@ -53,7 +50,7 @@ def load_raw_data(db: Session, df: pd.DataFrame) -> dict:
         )
         records.append(record)
 
-    # Batch insert (much faster than one-by-one)
+    # Batch insert
     BATCH_SIZE = 1000
     total_inserted = 0
 
@@ -74,10 +71,7 @@ def load_raw_data(db: Session, df: pd.DataFrame) -> dict:
 
 
 def load_metrics(db: Session, metrics_list: List[Dict[str, Any]]) -> dict:
-    """
-    Load calculated metrics into the calculated_metrics table.
-    Clears existing metrics first.
-    """
+    """Load calculated metrics into the calculated_metrics table."""
     print("[LOAD] Loading calculated metrics into database...")
 
     # Clear existing metrics
@@ -88,32 +82,36 @@ def load_metrics(db: Session, metrics_list: List[Dict[str, Any]]) -> dict:
     # Insert each metric record
     records_inserted = 0
     for metric_data in metrics_list:
-        metric = CalculatedMetrics(
-            segment_type=metric_data["segment_type"],
-            segment_value=metric_data["segment_value"],
-            total_ad_spend=metric_data["total_ad_spend"],
-            total_customers=metric_data["total_customers"],
-            total_conversions=metric_data["total_conversions"],
-            cac=metric_data["cac"],
-            estimated_ltv=metric_data["estimated_ltv"],
-            ltv_cac_ratio=metric_data["ltv_cac_ratio"],
-            estimated_revenue=metric_data["estimated_revenue"],
-            total_expenses=metric_data["total_expenses"],
-            profit_loss=metric_data["profit_loss"],
-            is_profitable=metric_data["is_profitable"],
-            burn_rate=metric_data["burn_rate"],
-            estimated_runway_months=metric_data["estimated_runway_months"],
-            avg_conversion_rate=metric_data["avg_conversion_rate"],
-            avg_click_through_rate=metric_data["avg_click_through_rate"],
-            cost_per_click=metric_data["cost_per_click"],
-            avg_income=metric_data["avg_income"],
-            avg_previous_purchases=metric_data["avg_previous_purchases"],
-            avg_loyalty_points=metric_data["avg_loyalty_points"],
-            avg_website_visits=metric_data["avg_website_visits"],
-            avg_time_on_site=metric_data["avg_time_on_site"],
-        )
-        db.add(metric)
-        records_inserted += 1
+        try:
+            metric = CalculatedMetrics(
+                segment_type=str(metric_data.get("segment_type", "unknown")),
+                segment_value=str(metric_data.get("segment_value", "unknown")),
+                total_ad_spend=to_float(metric_data.get("total_ad_spend", 0)),
+                total_customers=to_int(metric_data.get("total_customers", 0)),
+                total_conversions=to_int(metric_data.get("total_conversions", 0)),
+                cac=to_float(metric_data.get("cac", 0)),
+                estimated_ltv=to_float(metric_data.get("estimated_ltv", 0)),
+                ltv_cac_ratio=to_float(metric_data.get("ltv_cac_ratio", 0)),
+                estimated_revenue=to_float(metric_data.get("estimated_revenue", 0)),
+                total_expenses=to_float(metric_data.get("total_expenses", 0)),
+                profit_loss=to_float(metric_data.get("profit_loss", 0)),
+                is_profitable=bool(metric_data.get("is_profitable", False)),
+                burn_rate=to_float(metric_data.get("burn_rate", 0)),
+                estimated_runway_months=to_float(metric_data.get("estimated_runway_months", 0)),
+                avg_conversion_rate=to_float(metric_data.get("avg_conversion_rate", 0)),
+                avg_click_through_rate=to_float(metric_data.get("avg_click_through_rate", 0)),
+                cost_per_click=to_float(metric_data.get("cost_per_click", 0)),
+                avg_income=to_float(metric_data.get("avg_income", 0)),
+                avg_previous_purchases=to_float(metric_data.get("avg_previous_purchases", 0)),
+                avg_loyalty_points=to_float(metric_data.get("avg_loyalty_points", 0)),
+                avg_website_visits=to_float(metric_data.get("avg_website_visits", 0)),
+                avg_time_on_site=to_float(metric_data.get("avg_time_on_site", 0)),
+            )
+            db.add(metric)
+            records_inserted += 1
+        except Exception as e:
+            print(f"  Warning: Skipped metric {metric_data.get('segment_type')}:{metric_data.get('segment_value')} - {e}")
+            continue
 
     db.commit()
 
@@ -127,6 +125,26 @@ def load_metrics(db: Session, metrics_list: List[Dict[str, Any]]) -> dict:
 
 
 # === Helper Functions ===
+
+def to_float(value) -> float:
+    """Convert any value to Python float."""
+    try:
+        if value is None:
+            return 0.0
+        return float(value)
+    except (ValueError, TypeError):
+        return 0.0
+
+
+def to_int(value) -> int:
+    """Convert any value to Python int."""
+    try:
+        if value is None:
+            return 0
+        return int(float(value))
+    except (ValueError, TypeError):
+        return 0
+
 
 def safe_float(value) -> float:
     """Safely convert a value to float."""
