@@ -27,9 +27,6 @@ out/
 .DS_Store
 Thumbs.db
 
-# Data
-backend/data/*.csv
-
 # Logs
 *.log
 
