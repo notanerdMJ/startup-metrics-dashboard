@@ -11,6 +11,6 @@ export interface AIInsight {
   id: number;
   insight_type: string;
   insight_text: string;
-  severity: 'good' | 'warning' | 'critical';
+  severity: string;
   recommendation: string;
 }

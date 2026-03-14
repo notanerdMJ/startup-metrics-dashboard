@@ -1,7 +1,6 @@
-// frontend/src/hooks/useMetrics.ts
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import api from "@/lib/api";
 
 export function useMetrics(endpoint: string) {
@@ -9,11 +8,7 @@ export function useMetrics(endpoint: string) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchData();
-  }, [endpoint]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -21,11 +16,14 @@ export function useMetrics(endpoint: string) {
       setData(response.data);
     } catch (err: any) {
       setError(err.response?.data?.detail || "Failed to fetch data");
-      console.error(`Error fetching ${endpoint}:`, err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [endpoint]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   return { data, loading, error, refetch: fetchData };
 }
